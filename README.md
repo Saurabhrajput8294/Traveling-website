@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Travel School Booking System
 
 A complete travel booking system with user authentication, package browsing, booking management, and payment processing.
@@ -115,3 +116,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Font Awesome for icons
 - Unsplash for travel images
 - Stripe for payment processing
+=======
+# Traveling-website
+ A modern travel booking website built with HTML, CSS, and JavaScript. 
+>>>>>>> 8a021bed925c76632d09db8d88062dbba106da53
