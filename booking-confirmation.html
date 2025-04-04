@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - TRAVEL SCHOOL</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .confirmation-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .confirmation-header i {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .confirmation-details {
+            margin-bottom: 30px;
+        }
+        .confirmation-details h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: bold;
+            width: 200px;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .confirmation-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .confirmation-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn-home {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-home:hover {
+            background-color: #0056b3;
+        }
+        .btn-bookings {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-bookings:hover {
+            background-color: #218838;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="header">
+        <div class="logo">
+            <h1>TRAVEL SCHOOL</h1>
+        </div>
+        <div class="menu-item">
+            <a class="home" href="/">
+                <li>Home</li>
+            </a>
+            <a href="#" onclick="logout()" style="color: #ff4444;">
+                <li>Logout</li>
+            </a>
+        </div>
+    </nav>
+
+    <div class="confirmation-container">
+        <div id="loading" class="loading">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 40px;"></i>
+            <p>Loading booking details...</p>
+        </div>
+        
+        <div id="confirmation" style="display: none;">
+            <div class="confirmation-header">
+                <i class="fa-solid fa-circle-check"></i>
+                <h2>Booking Confirmed!</h2>
+                <p>Thank you for choosing Travel School. Your booking has been confirmed.</p>
+            </div>
+            
+            <div class="confirmation-details">
+                <h3>Booking Details</h3>
+                <div class="detail-row">
+                    <div class="detail-label">Booking ID:</div>
+                    <div class="detail-value" id="bookingId"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Package:</div>
+                    <div class="detail-value" id="packageName"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Destination:</div>
+                    <div class="detail-value" id="destination"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Travel Date:</div>
+                    <div class="detail-value" id="travelDate"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Number of People:</div>
+                    <div class="detail-value" id="numberOfPeople"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Total Price:</div>
+                    <div class="detail-value" id="totalPrice"></div>
+                </div>
+            </div>
+            
+            <div class="confirmation-actions">
+                <button class="btn-home" onclick="window.location.href='index.html'">Back to Home</button>
+                <button class="btn-bookings" onclick="window.location.href='my-bookings.html'">View My Bookings</button>
+            </div>
+        </div>
+        
+        <div id="error" style="display: none;" class="error-message">
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 40px; color: #dc3545;"></i>
+            <h2>Booking Not Found</h2>
+            <p>We couldn't find the booking you're looking for. It may have been cancelled or doesn't exist.</p>
+            <div class="confirmation-actions">
+                <button class="btn-home" onclick="window.location.href='index.html'">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        window.onload = function() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get booking ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('booking_id');
+            
+            if (!bookingId) {
+                showError();
+                return;
+            }
+            
+            // Load booking details
+            loadBookingDetails(bookingId);
+        }
+        
+        // Load booking details
+        async function loadBookingDetails(bookingId) {
+            try {
+                // In a real application, this would be an API call
+                // For now, we'll use localStorage
+                const bookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+                const booking = bookings.find(b => b.id === bookingId);
+                
+                if (!booking) {
+                    showError();
+                    return;
+                }
+                
+                // Get package details
+                const packages = JSON.parse(localStorage.getItem('travelPackages') || '[]');
+                const travelPackage = packages.find(p => p.id === booking.packageId);
+                
+                if (!travelPackage) {
+                    showError();
+                    return;
+                }
+                
+                // Update UI with booking details
+                document.getElementById('bookingId').textContent = booking.id;
+                document.getElementById('packageName').textContent = travelPackage.name;
+                document.getElementById('destination').textContent = travelPackage.destination;
+                document.getElementById('travelDate').textContent = new Date(booking.travelDate).toLocaleDateString();
+                document.getElementById('numberOfPeople').textContent = booking.numberOfPeople;
+                document.getElementById('totalPrice').textContent = `$${booking.totalPrice}`;
+                
+                // Hide loading, show confirmation
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('confirmation').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading booking details:', error);
+                showError();
+            }
+        }
+        
+        // Show error message
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html> 

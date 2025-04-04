@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - TRAVEL SCHOOL</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="booking.js"></script>
+    <style>
+        .bookings-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .bookings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .bookings-title {
+            font-size: 28px;
+            color: #333;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+        .loading i {
+            font-size: 40px;
+            color: #007bff;
+        }
+        .no-bookings {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        .booking-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .booking-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .booking-details {
+            padding: 20px;
+        }
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .booking-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .booking-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .booking-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+        .booking-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .favorite-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .favorite-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .favorite-details {
+            padding: 20px;
+        }
+        .favorite-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .favorite-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .favorite-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .favorite-info {
+            margin-bottom: 20px;
+        }
+        .favorite-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .favorite-duration {
+            font-size: 14px;
+            color: #333;
+        }
+        .favorite-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .remove-favorite {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .booking-card, .favorite-card {
+                flex-direction: column;
+            }
+            .booking-image, .favorite-image {
+                height: 150px;
+            }
+            .booking-info {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Contact Section Styles */
+        .contact .main-con {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .contact .box {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .contact .box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .contact .box i {
+            font-size: 24px;
+            color: #0066ff;
+            margin-bottom: 15px;
+        }
+        
+        .contact .box p {
+            color: #333;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .contact .box4 {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .contact .box4 .follow {
+            color: #0066ff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .contact .box4 .social {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .contact .box4 .social a {
+            color: #0066ff;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+        
+        .contact .box4 .social a:hover {
+            color: #0056b3;
+        }
+        
+        @media (max-width: 992px) {
+            .contact .main-con {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .contact .main-con {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Footer Social Icons */
+        .copy {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .copy .social {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .copy .social a {
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        
+        .copy .social a:hover {
+            transform: translateY(-3px);
+        }
+        
+        .copy .social i {
+            font-size: 24px;
+        }
+        
+        @media (max-width: 576px) {
+            .copy {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="header">
+        <div class="logo">
+            <h1>TRAVEL SCHOOL</h1>
+        </div>
+        <div class="menu-item">
+            <a class="home" href="/">
+                <li>Home</li>
+            </a>
+            <a href="my-bookings.html">
+                <li>My Bookings</li>
+            </a>
+            <a href="#dest">
+                <li>Best Place</li>
+            </a>
+            <a href="#contact">
+                <li>Contact Us</li>
+            </a>
+            <a href="#" onclick="logout()" style="color: #ff4444;">
+                <li>Logout</li>
+            </a>
+        </div>
+    </nav>
+
+    <div class="bookings-container">
+        <div class="bookings-header">
+            <h1 class="bookings-title">My Account</h1>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="bookings">My Bookings</div>
+            <div class="tab" data-tab="favorites">My Favorites</div>
+        </div>
+
+        <div class="tab-content active" id="bookings-tab">
+            <div id="loading-bookings" class="loading">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading your bookings...</p>
+            </div>
+
+            <div id="bookings-list"></div>
+
+            <div id="no-bookings" class="no-bookings" style="display: none;">
+                <i class="fa-solid fa-calendar-xmark" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                <h2>No Bookings Found</h2>
+                <p>You haven't made any bookings yet.</p>
+                <a href="/" class="btn btn-primary" style="display: inline-block; margin-top: 20px;">Browse Travel Packages</a>
+            </div>
+        </div>
+
+        <div class="tab-content" id="favorites-tab">
+            <div id="loading-favorites" class="loading">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading your favorites...</p>
+            </div>
+
+            <div id="favorites-list"></div>
+
+            <div id="no-favorites" class="no-bookings" style="display: none;">
+                <i class="fa-solid fa-heart" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                <h2>No Favorites Found</h2>
+                <p>You haven't saved any travel packages to your favorites yet.</p>
+                <a href="/" class="btn btn-primary" style="display: inline-block; margin-top: 20px;">Browse Travel Packages</a>
+            </div>
+        </div>
+    </div>
+
+    <section class="contact" id="contact">
+        <div class="txt">
+            <h1>Contact Me</h1>
+        </div>
+        <div class="main-con">
+            <div class="box">
+                <i class="fa-solid fa-location-dot"></i>
+                <p>456 Park Avenue, New York, NY 10022: (456), street name (Park Avenue).</p>
+            </div>
+
+            <div class="box">
+                <i class="fa-solid fa-phone-volume"></i>
+                <p>+8294595799</p>
+            </div>
+
+            <div class="box4">
+                <p class="follow">Follow Me</p>
+                <div class="social">
+                    <a href="https://www.facebook.com/saurabhsingh" target="_blank"><i class="fa-brands fa-facebook" style="color: #0066ff;"></i></a>
+                    <a href="https://www.instagram.com/saurabhxt2.0" target="_blank"><i class="fa-brands fa-instagram" style="color: #0066ff;"></i></a>
+                    <a href="https://www.youtube.com/@saurabhrajput" target="_blank"><i class="fa-brands fa-youtube" style="color: #0066ff;"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="align">
+            <div class="logo">
+                <h1>TRAVEL SCHOOL</h1>
+            </div>
+            <div class="menu-item">
+                <a class="home" href="/">
+                    <li>Home</li>
+                </a>
+                <a href="my-bookings.html">
+                    <li>My Bookings</li>
+                </a>
+                <a href="#dest">
+                    <li>Best Place</li>
+                </a>
+                <a href="#contact">
+                    <li>Contact Us</li>
+                </a>
+            </div>
+            <div class="txt-footer">
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi cum velit porro repudiandae architecto veniam
+                    magnam libero eaque nemo est placeat similique ipsum molestiae ullam, voluptatem ad molestias atque maiores.
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit.</p>
+            </div>
+        </div>
+    </footer>
+    <footer class="copy">
+        <p>Copyright &copy; 2024 Design By Saurabh Rajput.</p>
+        <div class="social">
+            <a href="https://www.facebook.com/saurabhsingh" target="_blank"><i class="fa-brands fa-facebook" style="color: #0066ff;"></i></a>
+            <a href="https://www.instagram.com/saurabhxt2.0" target="_blank"><i class="fa-brands fa-instagram" style="color: #0066ff;"></i></a>
+            <a href="https://www.youtube.com/@saurabhrajput" target="_blank"><i class="fa-brands fa-youtube" style="color: #0066ff;"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // Check if user is logged in
+        window.onload = function() {
+            if (!sessionStorage.getItem('isLoggedIn')) {
+                window.location.href = 'login.html';
+            } else {
+                // Load user bookings
+                loadUserBookings();
+                // Load user favorites
+                loadUserFavorites();
+                // Set up tab switching
+                setupTabs();
+            }
+        }
+
+        // Set up tab switching
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Show the selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        // Load user bookings
+        async function loadUserBookings() {
+            try {
+                // Show loading indicator
+                document.getElementById('loading-bookings').style.display = 'block';
+                
+                // Get bookings from localStorage
+                const currentUser = sessionStorage.getItem('currentUser');
+                const bookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+                const userBookings = bookings.filter(booking => booking.userId === currentUser);
+                
+                // Get travel packages
+                const packages = JSON.parse(localStorage.getItem('travelPackages') || '[]');
+                
+                // Hide loading indicator
+                document.getElementById('loading-bookings').style.display = 'none';
+                
+                // Display bookings
+                const bookingsList = document.getElementById('bookings-list');
+                bookingsList.innerHTML = '';
+                
+                if (userBookings.length === 0) {
+                    document.getElementById('no-bookings').style.display = 'block';
+                    return;
+                }
+                
+                userBookings.forEach(booking => {
+                    // Find the package details
+                    const package = packages.find(p => p.id === booking.packageId) || {
+                        name: 'Unknown Package',
+                        destination: 'Unknown Destination',
+                        image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dHJhdmVsJTIwZGVzdGluYXRpb258ZW58MHx8MHx8fDA%3D'
+                    };
+                    
+                    // Create booking card
+                    const bookingCard = document.createElement('div');
+                    bookingCard.className = 'booking-card';
+                    
+                    // Format date
+                    const travelDate = new Date(booking.travelDate);
+                    const formattedDate = travelDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    // Set status class
+                    let statusClass = 'status-pending';
+                    if (booking.status === 'confirmed') {
+                        statusClass = 'status-confirmed';
+                    } else if (booking.status === 'cancelled') {
+                        statusClass = 'status-cancelled';
+                    }
+                    
+                    bookingCard.innerHTML = `
+                        <img src="${package.image}" alt="${package.name}" class="booking-image">
+                        <div class="booking-details">
+                            <div class="booking-header">
+                                <h2 class="booking-title">${package.name}</h2>
+                                <span class="booking-status ${statusClass}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+                            </div>
+                            <div class="booking-info">
+                                <div class="info-item">
+                                    <span class="info-label">Booking ID</span>
+                                    <span class="info-value">${booking.id}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Destination</span>
+                                    <span class="info-value">${package.destination}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Travel Date</span>
+                                    <span class="info-value">${formattedDate}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Number of People</span>
+                                    <span class="info-value">${booking.numberOfPeople}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Total Price</span>
+                                    <span class="info-value">$${booking.totalPrice}</span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                <button class="btn btn-primary" onclick="viewBookingDetails('${booking.id}')">View Details</button>
+                                ${booking.status !== 'cancelled' ? `<button class="btn btn-danger" onclick="cancelBooking('${booking.id}')">Cancel Booking</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    bookingsList.appendChild(bookingCard);
+                });
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('loading-bookings').style.display = 'none';
+                document.getElementById('no-bookings').style.display = 'block';
+            }
+        }
+
+        // Load user favorites
+        function loadUserFavorites() {
+            try {
+                // Show loading indicator
+                document.getElementById('loading-favorites').style.display = 'block';
+                
+                // Get favorites from localStorage
+                const currentUser = sessionStorage.getItem('currentUser');
+                const favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser}`) || '[]');
+                
+                // Get travel packages
+                const packages = JSON.parse(localStorage.getItem('travelPackages') || '[]');
+                
+                // Filter packages to only include favorites
+                const favoritePackages = packages.filter(pkg => favorites.includes(pkg.id));
+                
+                // Hide loading indicator
+                document.getElementById('loading-favorites').style.display = 'none';
+                
+                // Display favorites
+                const favoritesList = document.getElementById('favorites-list');
+                favoritesList.innerHTML = '';
+                
+                if (favoritePackages.length === 0) {
+                    document.getElementById('no-favorites').style.display = 'block';
+                    return;
+                }
+                
+                favoritePackages.forEach(package => {
+                    // Create favorite card
+                    const favoriteCard = document.createElement('div');
+                    favoriteCard.className = 'favorite-card';
+                    
+                    favoriteCard.innerHTML = `
+                        <img src="${package.image}" alt="${package.name}" class="favorite-image">
+                        <div class="favorite-details">
+                            <div class="favorite-header">
+                                <h2 class="favorite-title">${package.name}</h2>
+                                <span class="favorite-price">$${package.price}</span>
+                            </div>
+                            <div class="favorite-info">
+                                <p class="favorite-description">${package.description}</p>
+                                <p class="favorite-duration">${package.duration} Days</p>
+                            </div>
+                            <div class="favorite-actions">
+                                <button class="btn btn-primary" onclick="openBookingModal('${package.id}')">Book Now</button>
+                                <button class="remove-favorite" onclick="removeFavorite('${package.id}')">
+                                    <i class="fa-solid fa-heart"></i> Remove from Favorites
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    favoritesList.appendChild(favoriteCard);
+                });
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                document.getElementById('loading-favorites').style.display = 'none';
+                document.getElementById('no-favorites').style.display = 'block';
+            }
+        }
+
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            window.location.href = `booking-confirmation.html?booking_id=${bookingId}`;
+        }
+
+        // Cancel booking
+        function cancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                // Get bookings from localStorage
+                const currentUser = sessionStorage.getItem('currentUser');
+                const bookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+                
+                // Find the booking
+                const bookingIndex = bookings.findIndex(booking => booking.id === bookingId && booking.userId === currentUser);
+                
+                if (bookingIndex !== -1) {
+                    // Update booking status
+                    bookings[bookingIndex].status = 'cancelled';
+                    bookings[bookingIndex].updatedAt = new Date().toISOString();
+                    
+                    // Save updated bookings
+                    localStorage.setItem('userBookings', JSON.stringify(bookings));
+                    
+                    // Reload bookings
+                    loadUserBookings();
+                    
+                    // Show notification
+                    showNotification('Booking cancelled successfully.');
+                }
+            }
+        }
+
+        // Remove from favorites
+        function removeFavorite(packageId) {
+            // Get favorites from localStorage
+            const currentUser = sessionStorage.getItem('currentUser');
+            const favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser}`) || '[]');
+            
+            // Remove package from favorites
+            const index = favorites.indexOf(packageId);
+            if (index !== -1) {
+                favorites.splice(index, 1);
+                
+                // Save updated favorites
+                localStorage.setItem(`favorites_${currentUser}`, JSON.stringify(favorites));
+                
+                // Reload favorites
+                loadUserFavorites();
+                
+                // Show notification
+                showNotification('Package removed from favorites.');
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: #333;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 1000;
+                animation: fadeInOut 3s forwards;
+            `;
+            
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translateY(20px); }
+                    10% { opacity: 1; transform: translateY(0); }
+                    90% { opacity: 1; transform: translateY(0); }
+                    100% { opacity: 0; transform: translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Set message and add to page
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html> 

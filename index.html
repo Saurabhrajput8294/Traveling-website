@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saurabh site</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="script.js"></script>
+  <script src="booking.js"></script>
+  <script>
+    // Check if user is logged in
+    window.onload = function() {
+      if (!sessionStorage.getItem('isLoggedIn')) {
+        window.location.href = 'login.html';
+      } else {
+        // Display user info
+        const currentUser = sessionStorage.getItem('currentUser');
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u => u.email === currentUser);
+        if (user) {
+          document.getElementById('welcomeMessage').textContent = `Welcome, ${user.name}!`;
+        }
+        
+        // Load travel packages
+        loadTravelPackages();
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('currentUser');
+      window.location.href = 'login.html';
+    }
+  </script>
+  <style>
+    .user-welcome {
+      color: #007bff;
+      font-weight: bold;
+      margin-right: 20px;
+    }
+    
+    /* Contact Section Styles */
+    .contact .main-con {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .contact .box {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    
+    .contact .box:hover {
+      transform: translateY(-5px);
+    }
+    
+    .contact .box i {
+      font-size: 24px;
+      color: #0066ff;
+      margin-bottom: 15px;
+    }
+    
+    .contact .box p {
+      color: #333;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    
+    .contact .box4 {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    .contact .box4 .follow {
+      color: #0066ff;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    
+    .contact .box4 .social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .contact .box4 .social a {
+      color: #0066ff;
+      font-size: 24px;
+      transition: color 0.3s;
+    }
+    
+    .contact .box4 .social a:hover {
+      color: #0056b3;
+    }
+    
+    @media (max-width: 992px) {
+      .contact .main-con {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .contact .main-con {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Footer Social Icons */
+    .copy {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    
+    .copy .social {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .copy .social a {
+      text-decoration: none;
+      transition: transform 0.3s;
+    }
+    
+    .copy .social a:hover {
+      transform: translateY(-3px);
+    }
+    
+    .copy .social i {
+      font-size: 24px;
+    }
+    
+    @media (max-width: 576px) {
+      .copy {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="header">
+    <div class="logo">
+      <h1>TRAVEL SCHOOL</h1>
+    </div>
+    <div class="menu-item">
+      <span id="welcomeMessage" class="user-welcome"></span>
+      <a class="home" href="/">
+        <li>Home</li>
+      </a>
+      <a href="my-bookings.html">
+        <li>My Bookings</li>
+      </a>
+      <a href="#dest">
+        <li>Best Place</li>
+      </a>
+      <a href="#contact">
+        <li>Contact Us</li>
+      </a>
+      <a href="#" onclick="logout()" style="color: #ff4444;">
+        <li>Logout</li>
+      </a>
+    </div>
+  </nav>
+
+  <section class="bg-sec">
+    <div class="txt">
+      <p class="first-txt">Welcome to <span>TRAVEL SCHOOL</span> UP to 30% OFF</p>
+      <h2>Join Over 30,000 Member.</h2>
+      <p>Welcome to my travel Agency</p>
+    </div>
+    <div class="srch">
+      <input type="email" name="email" id="" placeholder="Enter Your Email">
+      <button>Subscribe</button>
+    </div>
+  </section>
+
+  <section class="offer" id="offer">
+    <div class="txt">
+      <h1 class="offer-text">Recent Place Offer</h1>
+    </div>
+    <div class="main-con">
+      <!-- Travel packages will be loaded here by JavaScript -->
+      <div id="loading" style="text-align: center; padding: 50px;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 40px;"></i>
+        <p>Loading travel packages...</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="dest" id="dest">
+    <div class="txt">
+      <h1>Popular Destinations</h1>
+    </div>
+    <div class="main-con">
+      <!-- Popular destinations will be loaded here by JavaScript -->
+      <div id="loading-dest" style="text-align: center; padding: 50px;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 40px;"></i>
+        <p>Loading destinations...</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="txt">
+      <h1>Contact Me</h1>
+    </div>
+    <div class="main-con">
+      <div class="box">
+        <i class="fa-solid fa-location-dot"></i>
+        <p>456 Park Avenue, New York, NY 10022: (456), street name (Park Avenue).</p>
+      </div>
+
+      <div class="box">
+        <i class="fa-solid fa-phone-volume"></i>
+        <p>+8294595799</p>
+      </div>
+
+      <div class="box4">
+        <p class="follow">Follow Me</p>
+        <div class="social">
+          <a href="https://www.facebook.com/saurabhsingh" target="_blank"><i class="fa-brands fa-facebook" style="color: #0066ff;"></i></a>
+          <a href="https://www.instagram.com/saurabhxt2.0" target="_blank"><i class="fa-brands fa-instagram" style="color: #0066ff;"></i></a>
+          <a href="https://www.youtube.com/@saurabhrajput" target="_blank"><i class="fa-brands fa-youtube" style="color: #0066ff;"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="align">
+      <div class="logo">
+        <h1>TRAVEL SCHOOL</h1>
+      </div>
+      <div class="menu-item">
+        <a class="home" href="/">
+          <li>Home</li>
+        </a>
+        <a href="my-bookings.html">
+          <li>My Bookings</li>
+        </a>
+        <a href="#dest">
+          <li>Best Place</li>
+        </a>
+        <a href="#contact">
+          <li>Contact Us</li>
+        </a>
+      </div>
+      <div class="txt-footer">
+        <p>"The world is a book and those who do not travel read only one page." - Saint Augustine. "Travel is the only thing you buy that makes you richer." - Anonymous. "Adventure is worthwhile in itself." - Amelia Earhart. Join us on this journey of discovery and create memories that last a lifetime. - Saurabh Rajput</p>
+      </div>
+    </div>
+  </footer>
+  <footer class="copy">
+    <p>Copyright &copy; 2024 Design By Saurabh Rajput.</p>
+    <div class="social">
+      <a href="https://www.facebook.com/saurabhsingh" target="_blank"><i class="fa-brands fa-facebook" style="color: #0066ff;"></i></a>
+      <a href="https://www.instagram.com/saurabhxt2.0" target="_blank"><i class="fa-brands fa-instagram" style="color: #0066ff;"></i></a>
+      <a href="https://www.youtube.com/@saurabhrajput" target="_blank"><i class="fa-brands fa-youtube" style="color: #0066ff;"></i></a>
+    </div>
+  </footer>
+
+  <script>
+    function logout() {
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('currentUser');
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script src="script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.js"
+    integrity="sha512-ZKNVEa7gi0Dz4Rq9jXcySgcPiK+5f01CqW+ZoKLLKr9VMXuCsw3RjWiv8ZpIOa0hxO79np7Ec8DDWALM0bDOaQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>
